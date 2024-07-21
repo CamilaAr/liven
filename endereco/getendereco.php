@@ -3,22 +3,22 @@ require_once '../conexao.php'; // Inclui a função para obter a conexão com o 
 require_once '../funcoes/funcoesenderecos.php'; // Inclui as funções para obter endereços
 
 if ($_SERVER['REQUEST_METHOD'] === 'GET') {
+
+
     try {
-
-
         // Check if 'country' query parameter is set
         if (isset($_GET['country'])) {
             $country = $_GET['country'];
             error_log('Obtendo endereços para o país: ' . $country);
             $enderecosUsuario = obterEnderecosPorPais($conn, $country);
 
-            if ($enderecosUsuario) {
+            if (!empty($enderecosUsuario)) {
                 http_response_code(200);
                 echo json_encode(['enderecos' => $enderecosUsuario]);
             } else {
                 error_log('Nenhum endereço encontrado para o país: ' . $country);
-                http_response_code(404);
-                echo json_encode(['erro' => 'Nenhum endereço encontrado para o país especificado']);
+                http_response_code(200);
+                echo json_encode(['enderecos' => []]); // Retornando array vazio
             }
         } 
         // Check if 'id' query parameter is set
@@ -27,16 +27,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
             error_log('Obtendo endereço para o ID: ' . $endereco_id);
             $enderecoUsuario = obterEnderecoPorId($conn, $endereco_id);
 
-            if ($enderecoUsuario) {
+            if (!empty($enderecoUsuario)) {
                 http_response_code(200);
                 echo json_encode($enderecoUsuario);
             } else {
                 error_log('Endereço não encontrado para o ID: ' . $endereco_id);
-                http_response_code(404);
-                echo json_encode(['erro' => 'Endereço não encontrado para o ID especificado']);
+                http_response_code(200);
+                echo json_encode(['id' => null, 'erro' => 'Endereço não encontrado para o ID especificado']); // Incluindo a chave 'id'
             }
         } else {
-            http_response_code(400);
+            http_response_code(200);
             echo json_encode(['erro' => 'Parâmetro não fornecido']);
         }
 

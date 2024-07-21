@@ -3,25 +3,25 @@ require_once '../conexao.php'; // Inclui a função para obter a conexão com o 
 require_once '../funcoes/funcoesenderecos.php'; // Inclui as funções para obter endereços
 
 if ($_SERVER['REQUEST_METHOD'] === 'GET') {
+
+
     try {
-
-
         // Check if 'usuario_id' query parameter is set
         if (isset($_GET['usuario_id'])) {
             $usuario_id = $_GET['usuario_id'];
             error_log('Obtendo endereços para o usuário ID: ' . $usuario_id);
             $enderecosUsuario = obterEnderecosPorUsuarioId($conn, $usuario_id);
 
-            if ($enderecosUsuario) {
+            if (!empty($enderecosUsuario)) {
                 http_response_code(200);
                 echo json_encode(['enderecos' => $enderecosUsuario]);
             } else {
                 error_log('Nenhum endereço encontrado para o usuário ID: ' . $usuario_id);
-                http_response_code(404);
-                echo json_encode(['erro' => 'Nenhum endereço encontrado para o usuário especificado']);
+                http_response_code(200);
+                echo json_encode(['enderecos' => []]); // Retornando array vazio
             }
         } else {
-            http_response_code(400);
+            http_response_code(200);
             echo json_encode(['erro' => 'Parâmetro não fornecido']);
         }
 

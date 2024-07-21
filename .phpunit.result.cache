@@ -1,0 +1,1 @@
+{"version":1,"defects":{"EnderecoTest::testGetEnderecosPorPais":7,"EnderecoTest::testGetEnderecoPorId":7,"UsuarioTest::testGetEnderecosPorUsuarioId":7},"times":{"EnderecoTest::testGetEnderecosPorPais":0.01,"EnderecoTest::testGetEnderecoPorId":0.005,"UsuarioTest::testGetEnderecosPorUsuarioId":0.004}}
