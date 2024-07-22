@@ -1,39 +1,71 @@
 <?php
-require_once '../conexao.php'; // Inclui a função para obter a conexão com o banco de dados
-require_once '../funcoes/funcoesenderecos.php'; // Inclui as funções para obter endereços
+require_once '../conexao.php';
+require_once '../funcoes/funcoesenderecos.php';
+
+use OpenApi\Annotations as OA;
+
+/**
+ * @OA\Get(
+ *     path="/endereco/getendereco.php",
+ *     summary="Obter endereços",
+ *     @OA\Parameter(
+ *         name="country",
+ *         in="query",
+ *         required=false,
+ *         description="País para filtrar os endereços",
+ *         @OA\Schema(type="string")
+ *     ),
+ *     @OA\Parameter(
+ *         name="id",
+ *         in="query",
+ *         required=false,
+ *         description="ID do endereço",
+ *         @OA\Schema(type="integer")
+ *     ),
+ *     @OA\Response(
+ *         response=200,
+ *         description="Sucesso",
+ *         @OA\JsonContent(
+ *             type="object",
+ *             @OA\Property(
+ *                 property="enderecos",
+ *                 type="array",
+ *                 @OA\Items(ref="#/components/schemas/Endereco")
+ *             )
+ *         )
+ *     ),
+ *     @OA\Response(
+ *         response=404,
+ *         description="Endereço não encontrado"
+ *     )
+ * )
+ */
 
 if ($_SERVER['REQUEST_METHOD'] === 'GET') {
 
 
     try {
-        // Check if 'country' query parameter is set
         if (isset($_GET['country'])) {
             $country = $_GET['country'];
-            error_log('Obtendo endereços para o país: ' . $country);
             $enderecosUsuario = obterEnderecosPorPais($conn, $country);
 
             if (!empty($enderecosUsuario)) {
                 http_response_code(200);
                 echo json_encode(['enderecos' => $enderecosUsuario]);
             } else {
-                error_log('Nenhum endereço encontrado para o país: ' . $country);
                 http_response_code(200);
-                echo json_encode(['enderecos' => []]); // Retornando array vazio
+                echo json_encode(['enderecos' => []]);
             }
-        } 
-        // Check if 'id' query parameter is set
-        else if (isset($_GET['id'])) {
+        } elseif (isset($_GET['id'])) {
             $endereco_id = $_GET['id'];
-            error_log('Obtendo endereço para o ID: ' . $endereco_id);
             $enderecoUsuario = obterEnderecoPorId($conn, $endereco_id);
 
             if (!empty($enderecoUsuario)) {
                 http_response_code(200);
                 echo json_encode($enderecoUsuario);
             } else {
-                error_log('Endereço não encontrado para o ID: ' . $endereco_id);
                 http_response_code(200);
-                echo json_encode(['id' => null, 'erro' => 'Endereço não encontrado para o ID especificado']); // Incluindo a chave 'id'
+                echo json_encode(['id' => null, 'erro' => 'Endereço não encontrado para o ID especificado']);
             }
         } else {
             http_response_code(200);
@@ -42,7 +74,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
 
         $conn->close();
     } catch (Exception $e) {
-        error_log('Erro: ' . $e->getMessage());
         http_response_code(500);
         echo json_encode(['erro' => 'Erro interno do servidor: ' . $e->getMessage()]);
     }
