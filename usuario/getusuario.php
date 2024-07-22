@@ -1,24 +1,53 @@
 <?php
-require_once '../conexao.php'; // Inclui a função para obter a conexão com o banco de dados
-require_once '../funcoes/funcoesenderecos.php'; // Inclui as funções para obter endereços
+require_once '../conexao.php';
+require_once '../funcoes/funcoesenderecos.php';
+
+use OpenApi\Annotations as OA;
+
+/**
+ * @OA\Get(
+ *     path="/usuario/getusuario.php",
+ *     summary="Obter endereços de um usuário",
+ *     @OA\Parameter(
+ *         name="usuario_id",
+ *         in="query",
+ *         required=true,
+ *         description="ID do usuário",
+ *         @OA\Schema(type="integer")
+ *     ),
+ *     @OA\Response(
+ *         response=200,
+ *         description="Sucesso",
+ *         @OA\JsonContent(
+ *             type="object",
+ *             @OA\Property(
+ *                 property="enderecos",
+ *                 type="array",
+ *                 @OA\Items(ref="#/components/schemas/Endereco")
+ *             )
+ *         )
+ *     ),
+ *     @OA\Response(
+ *         response=404,
+ *         description="Endereços não encontrados"
+ *     )
+ * )
+ */
 
 if ($_SERVER['REQUEST_METHOD'] === 'GET') {
 
 
     try {
-        // Check if 'usuario_id' query parameter is set
         if (isset($_GET['usuario_id'])) {
             $usuario_id = $_GET['usuario_id'];
-            error_log('Obtendo endereços para o usuário ID: ' . $usuario_id);
             $enderecosUsuario = obterEnderecosPorUsuarioId($conn, $usuario_id);
 
             if (!empty($enderecosUsuario)) {
                 http_response_code(200);
                 echo json_encode(['enderecos' => $enderecosUsuario]);
             } else {
-                error_log('Nenhum endereço encontrado para o usuário ID: ' . $usuario_id);
                 http_response_code(200);
-                echo json_encode(['enderecos' => []]); // Retornando array vazio
+                echo json_encode(['enderecos' => []]);
             }
         } else {
             http_response_code(200);
@@ -27,7 +56,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
 
         $conn->close();
     } catch (Exception $e) {
-        error_log('Erro: ' . $e->getMessage());
         http_response_code(500);
         echo json_encode(['erro' => 'Erro interno do servidor: ' . $e->getMessage()]);
     }
